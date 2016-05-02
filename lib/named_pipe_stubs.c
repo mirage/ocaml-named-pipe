@@ -20,15 +20,50 @@
 #include <caml/fail.h>
 #include <caml/bigarray.h>
 
+#ifdef WIN32
+#include <wtypes.h>
+#include <winbase.h>
+#include <winsock2.h>
+
+extern value win_alloc_handle(HANDLE);
+#endif
+
 /* string -> t */
 CAMLprim value stub_named_pipe_create(value path) {
   CAMLparam1(path);
+  CAMLlocal1(result);
 #ifdef WIN32
-  caml_failwith("Not implemented");
+  const char *c_path = strdup(String_val(path));
+  HANDLE h = INVALID_HANDLE_VALUE;
+  DWORD nOutBufferSize = 4096;
+  DWORD nInBufferSize  = 4096;
+  DWORD nDefaultTimeOut = 0;
+  LPSECURITY_ATTRIBUTES lpSecurityAttributes = NULL;
+  caml_enter_blocking_section();
+  h = CreateNamedPipe(
+    c_path,
+    PIPE_ACCESS_DUPLEX,
+    PIPE_TYPE_BYTE |
+    PIPE_READMODE_BYTE |
+    PIPE_WAIT |
+    PIPE_UNLIMITED_INSTANCES |
+    PIPE_REJECT_REMOTE_CLIENTS,
+    nOutBufferSize,
+    nInBufferSize,
+    nDefaultTimeOut,
+    lpSecurityAttributes
+  );
+  free(c_path);
+
+  if (h == INVALID_HANDLE_VALUE) {
+    _tprintf(TEXT("CreateNamedPipe failed, GLE=%d.\n"), GetLastError());
+    caml_failwith("CreateNamedPipe failed");
+  }
+  result = win_alloc_handle(h);
 #else
   caml_failwith("Not implemented");
 #endif
-  CAMLreturn(0);
+  CAMLreturn(result);
 }
 
 /* t -> bool */

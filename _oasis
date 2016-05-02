@@ -1,0 +1,33 @@
+OASISFormat: 0.3
+Name:        named-pipe
+Version:     0.1
+Synopsis:    Win32 named pipes
+Authors:     David Scott
+License:     ISC
+Plugins:     META (0.3), DevFiles (0.4)
+BuildTools:  ocamlbuild
+OCamlVersion: >= 4.00
+
+Library "named-pipe"
+  Pack:               true
+  CompiledObject:     best
+  Path:               lib
+  Findlibname:        named-pipe
+  Modules:            Named_pipe
+  BuildDepends:       unix
+  CSources:           named_pipe_stubs.c
+
+Document api
+  Title:              Documentation and API reference
+  Type:               ocamlbuild (0.3)
+  BuildTools+:        ocamldoc
+  XOcamlbuildPath:    .
+  Install:           false
+  XOcamlbuildLibraries: named-pipe
+
+Executable pipecat
+  Install:            false
+  CompiledObject:     best
+  Path:               src
+  MainIs:             pipecat.ml
+  BuildDepends:       cmdliner, named-pipe

@@ -10,6 +10,7 @@ bug-reports: "https://github.com/djs55/ocaml-namedpipe/issues"
 
 build: [
   ["oasis" "setup"]
+  ["ocaml" "setup.ml" "-configure" "--%{ounit:enable}%-tests" ]
   [make]
 ]
 

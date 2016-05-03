@@ -49,7 +49,6 @@ CAMLprim value stub_named_pipe_create(value path) {
     PIPE_TYPE_BYTE |
     PIPE_READMODE_BYTE |
     PIPE_WAIT |
-    PIPE_UNLIMITED_INSTANCES |
     PIPE_REJECT_REMOTE_CLIENTS,
     PIPE_UNLIMITED_INSTANCES,
     nOutBufferSize,

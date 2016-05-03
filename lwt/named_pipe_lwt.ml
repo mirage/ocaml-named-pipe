@@ -7,7 +7,7 @@ module Server = struct
 
   external connect: t -> bool Lwt.t = "named_pipe_lwt_connect_job"
 
-  let flush _ = Lwt.fail (Failure "not implemented")
+  external flush: t -> unit Lwt.t = "named_pipe_lwt_flush_job"
 
   external disconnect: t -> unit = "stub_named_pipe_disconnect"
 

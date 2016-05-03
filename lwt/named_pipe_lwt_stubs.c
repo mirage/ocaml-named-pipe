@@ -59,3 +59,28 @@ value named_pipe_lwt_connect_job(value handle)
   job->result = FALSE;
   CAMLreturn(lwt_unix_alloc_job(&(job->job)));
 }
+
+struct job_flush {
+  struct lwt_unix_job job;
+  HANDLE h;
+};
+
+static void worker_flush(struct job_flush *job)
+{
+  FlushFileBuffers(job->h);
+}
+
+static value result_flush(struct job_flush *job)
+{
+  CAMLparam0 ();
+  CAMLreturn(Val_int(0));
+}
+
+CAMLprim
+value named_pipe_lwt_flush_job(value handle)
+{
+  CAMLparam1(handle);
+  LWT_UNIX_INIT_JOB(job, flush, 0);
+  job->h = (HANDLE)Handle_val(handle);
+  CAMLreturn(lwt_unix_alloc_job(&(job->job)));
+}

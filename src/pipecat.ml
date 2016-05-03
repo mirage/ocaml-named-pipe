@@ -1,3 +1,25 @@
+open Lwt.Infix
+
+let sigint_t, sigint_u = Lwt.task ()
+
+let proxy buffer_size (ic, oc) (stdin, stdout) =
+  let a_buffer = Bytes.create buffer_size in
+  let b_buffer = Bytes.create buffer_size in
+  let rec proxy buffer a b =
+    Lwt_io.read_into a buffer 0 buffer_size
+    >>= function
+    | 0 -> Lwt.fail End_of_file
+    | n ->
+      Lwt_io.write_from_exactly b buffer 0 n
+      >>= fun () ->
+      proxy buffer a b in
+  let (a: unit Lwt.t) = proxy a_buffer stdin oc in
+  let (b: unit Lwt.t) = proxy b_buffer ic stdout in
+  Lwt.catch
+    (fun () -> Lwt.pick [a; b; sigint_t])
+    (function End_of_file -> Lwt.return ()
+     | e -> Lwt.fail e)
+
 open Cmdliner
 
 let listen =
@@ -7,30 +29,47 @@ let listen =
 let path =
   Arg.(required & pos 1 (some string) (Some "\\\\.\\pipe\\pipecat") & info ~docv:"PATH" ~doc:"Path to named pipe" [])
 
+let buffer_size = 4096
+
 let rec client path =
   try
     let p = Named_pipe.Client.openpipe path in
+    let fd = Named_pipe.Client.to_fd p in
     Printf.fprintf stderr "Connected\n%!";
-    Unix.close p
+    let ic = Lwt_io.of_unix_fd ~mode:Lwt_io.input fd in
+    let oc = Lwt_io.of_unix_fd ~mode:Lwt_io.output fd in
+    proxy buffer_size (ic, oc) (Lwt_io.stdin, Lwt_io.stdout)
+    >>= fun () ->
+    Unix.close fd;
+    Lwt.return ()
   with e ->
     Printf.fprintf stderr "Caught error %s: waiting\n%!" (Printexc.to_string e);
-    if not (Named_pipe.Client.wait path 1000)
-    then Printf.fprintf stderr "Failed to wait for a free slot\n%!"
-    else client path
+    if not (Named_pipe.Client.wait path 1000) then begin
+      Printf.fprintf stderr "Failed to wait for a free slot\n%!";
+      Lwt.return ()
+    end else client path
 
 let server path =
   let p = Named_pipe.Server.create path in
   match Named_pipe.Server.connect p with
   | false ->
     Printf.fprintf stderr "Failed to connect to client\n%!";
-    ()
+    Lwt.return ()
   | true ->
     Printf.fprintf stderr "Connected\n%!";
+    let fd = Named_pipe.Server.to_fd p in
+    let ic = Lwt_io.of_unix_fd ~mode:Lwt_io.input fd in
+    let oc = Lwt_io.of_unix_fd ~mode:Lwt_io.output fd in
+    proxy buffer_size (ic, oc) (Lwt_io.stdin, Lwt_io.stdout)
+    >>= fun () ->
     Named_pipe.Server.flush p;
     Named_pipe.Server.disconnect p;
-    Named_pipe.Server.destroy p
+    Named_pipe.Server.destroy p;
+    Lwt.return ()
 
-let main listen path = (if listen then server else client) path
+let main listen path =
+  let t = (if listen then server else client) path in
+  Lwt_main.run t
 
 let cmd =
   let doc = "Establish named pipe connections" in
@@ -47,4 +86,8 @@ let cmd =
   Term.info "pipecat" ~version:"0.1" ~doc ~man
 
 let () =
+let (_: Lwt_unix.signal_handler_id) = Lwt_unix.on_signal Sys.sigint
+  (fun (_: int) ->
+    Lwt.wakeup_later sigint_u ();
+  ) in
   match Term.eval cmd with `Error _ -> exit 1 | _ -> exit 0

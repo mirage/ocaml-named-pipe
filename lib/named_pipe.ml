@@ -1,6 +1,7 @@
 
 module Server = struct
   type t = Unix.file_descr
+  let to_fd x = x
 
   external create: string -> t = "stub_named_pipe_create"
 
@@ -15,6 +16,7 @@ end
 
 module Client = struct
   type t = Unix.file_descr
+  let to_fd x = x
 
   (* TODO: if this fails with ERROR_PIPE_BUSY then call wait *)
   let openpipe path =

@@ -11,6 +11,8 @@ module Server: sig
   val connect: t -> bool
   (** Connect blocks until a client connects to this named pipe *)
 
+  val to_fd: t -> Unix.file_descr
+
   val flush: t -> unit
   (** Flushes outstanding write buffers, typically called before disconnect *)
 
@@ -24,11 +26,13 @@ end
 (* https://msdn.microsoft.com/en-gb/library/windows/desktop/aa365592(v=vs.85).aspx *)
 
 module Client: sig
-  type t = Unix.file_descr
+  type t
   (** A connection to a named pipe server *)
 
   val openpipe: string -> t
   (** Connect to the named pipe server. This can fail if the server is busy *)
+
+  val to_fd: t -> Unix.file_descr
 
   val wait: string -> int -> bool
   (** [wait path ms] wait for up to [ms] milliseconds for the server to become

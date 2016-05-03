@@ -16,7 +16,7 @@ let proxy buffer_size (ic, oc) (stdin, stdout) =
   let (a: unit Lwt.t) = proxy a_buffer stdin oc in
   let (b: unit Lwt.t) = proxy b_buffer ic stdout in
   Lwt.catch
-    (fun () -> Lwt.pick [a; b; sigint_t])
+    (fun () -> Lwt.pick [a; b])
     (function End_of_file -> Lwt.return ()
      | e -> Lwt.fail e)
 

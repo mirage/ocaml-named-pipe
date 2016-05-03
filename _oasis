@@ -41,4 +41,4 @@ Executable pipecat
   CompiledObject:     best
   Path:               src
   MainIs:             pipecat.ml
-  BuildDepends:       cmdliner, named-pipe, lwt, lwt.unix, lwt.preemptive, threads
+  BuildDepends:       cmdliner, named-pipe, named-pipe.lwt, lwt, lwt.unix

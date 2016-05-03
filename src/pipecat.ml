@@ -27,7 +27,7 @@ let listen =
   Arg.(value & flag & info [ "l"; "listen"] ~doc)
 
 let path =
-  Arg.(required & pos 1 (some string) (Some "\\\\.\\pipe\\pipecat") & info ~docv:"PATH" ~doc:"Path to named pipe" [])
+  Arg.(value & pos 0 string "\\\\.\\pipe\\mynamedpipe" & info ~docv:"PATH" ~doc:"Path to named pipe" [])
 
 let buffer_size = 4096
 

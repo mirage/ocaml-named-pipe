@@ -1,4 +1,3 @@
-open OUnit
 open Lwt.Infix
 
 let proxy buffer_size (ic, oc) (stdin, stdout) =
@@ -65,8 +64,10 @@ let test_server () =
   let t = Lwt.join (List.map (fun _ -> client ()) (mkints 1000)) in
   Lwt_main.run t
 
-let _ =
-  let suite = "named_pipes" >::: [
-    "server" >:: test_server
-  ] in
-  OUnit2.run_test_tt_main (OUnit.ounit2_of_ounit1 suite)
+let tests = [
+  "server", [
+    "connect 1000x to a server", `Quick, test_server;
+  ]
+]
+
+let () = Alcotest.run "named-pipe" tests

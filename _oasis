@@ -49,9 +49,9 @@ Executable test
   CompiledObject:     best
   Path:               lib_test
   MainIs:             test.ml
-  BuildDepends:       named-pipe, named-pipe.lwt, lwt, lwt.unix, oUnit
+  BuildDepends:       named-pipe, named-pipe.lwt, lwt, lwt.unix, alcotest 
 
 Test server_test
   Run$:               flag(tests)
-  Command:            $test -runner sequential
+  Command:            $test
   WorkingDirectory:   lib_test

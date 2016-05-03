@@ -10,7 +10,7 @@ bug-reports: "https://github.com/djs55/ocaml-namedpipe/issues"
 
 build: [
   ["oasis" "setup"]
-  ["ocaml" "setup.ml" "-configure" "--%{ounit:enable}%-tests" ]
+  ["ocaml" "setup.ml" "-configure" "--%{alcotest:enable}%-tests" ]
   [make]
 ]
 
@@ -28,6 +28,6 @@ depends: [
   "oasis" {build}
   "ocamlfind" {build}
   "ocamlbuild" {build}
-  "ounit" {test}
+  "alcotest" {test & >= "0.4.0"}
 ]
 available: [os = "win32"]

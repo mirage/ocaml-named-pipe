@@ -104,10 +104,13 @@ CAMLprim value stub_named_pipe_flush(value handle) {
 }
 
 /* t -> unit */
-CAMLprim value stub_named_pipe_disconnect(value path) {
-  CAMLparam1(path);
+CAMLprim value stub_named_pipe_disconnect(value handle) {
+  CAMLparam1(handle);
 #ifdef WIN32
-  caml_failwith("Not implemented");
+  HANDLE h = Handle_val(handle);
+  caml_release_runtime_system();
+  DisconnectNamedPipe(h);
+  caml_acquire_runtime_system();
 #else
   caml_failwith("Not implemented");
 #endif

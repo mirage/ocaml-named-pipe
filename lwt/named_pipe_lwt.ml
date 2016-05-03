@@ -29,5 +29,5 @@ module Client = struct
       raise Pipe_busy
     | e -> raise e
 
-  let wait _ _ = Lwt.fail (Failure "not implemented")
+  external wait: string -> int -> bool Lwt.t = "named_pipe_lwt_wait_job"
 end

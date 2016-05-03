@@ -84,3 +84,34 @@ value named_pipe_lwt_flush_job(value handle)
   job->h = (HANDLE)Handle_val(handle);
   CAMLreturn(lwt_unix_alloc_job(&(job->job)));
 }
+
+struct job_wait {
+  struct lwt_unix_job job;
+  char *path;
+  DWORD ms;
+  BOOL result;
+};
+
+static void worker_wait(struct job_wait *job)
+{
+  job->result = WaitNamedPipe(job->path, job->ms);
+  free(job->path);
+}
+
+static value result_wait(struct job_wait *job)
+{
+  CAMLparam0 ();
+  CAMLreturn(Val_bool((job->result == TRUE)?1:0));
+}
+
+CAMLprim
+value named_pipe_lwt_wait_job(value path, value ms)
+{
+  CAMLparam2(path, ms);
+  LWT_UNIX_INIT_JOB(job, wait, 0);
+  job->path = strdup(String_val(path));
+  job->ms = Int_val(ms);
+  job->result = FALSE;
+  CAMLreturn(lwt_unix_alloc_job(&(job->job)));
+}
+

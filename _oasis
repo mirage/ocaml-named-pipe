@@ -17,6 +17,17 @@ Library "named-pipe"
   BuildDepends:       unix
   CSources:           named_pipe_stubs.c
 
+Library "named-pipe_lwt"
+  Pack:               false
+  CompiledObject:     best
+  Path:               lwt
+  Findlibname:        lwt
+  Findlibparent:      named-pipe
+  Modules:            Named_pipe_lwt
+  BuildDepends:       lwt
+  CSources:           named_pipe_lwt_stubs.c
+  CCOpt:              -I $(pkg_lwt)
+
 Document api
   Title:              Documentation and API reference
   Type:               ocamlbuild (0.3)
@@ -30,4 +41,4 @@ Executable pipecat
   CompiledObject:     best
   Path:               src
   MainIs:             pipecat.ml
-  BuildDepends:       cmdliner, named-pipe, lwt, lwt.unix, lwt.preemptive, threads
+  BuildDepends:       cmdliner, named-pipe, named-pipe.lwt, lwt, lwt.unix

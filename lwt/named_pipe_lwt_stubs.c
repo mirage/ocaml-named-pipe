@@ -55,7 +55,7 @@ value named_pipe_lwt_connect_job(value handle)
 {
   CAMLparam1(handle);
   LWT_UNIX_INIT_JOB(job, connect, 0);
-  job->handle = (HANDLE)Handle_val(handle);
+  job->h = (HANDLE)Handle_val(handle);
   job->result = FALSE;
   CAMLreturn(lwt_unix_alloc_job(&(job->job)));
 }

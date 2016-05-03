@@ -42,9 +42,13 @@ let rec client path =
     >>= fun () ->
     Unix.close fd;
     Lwt.return ()
-  with e ->
+  with
+  | Unix.Unix_error(Unix.ENOENT, _, _) ->
+    Printf.fprintf stderr "Server not found (ENOENT)\n";
+    Lwt.return ()
+  | e ->
     Printf.fprintf stderr "Caught error %s: waiting\n%!" (Printexc.to_string e);
-    if not (Named_pipe.Client.wait path 1000) then begin
+    if not (Named_pipe.Client.wait path 10000) then begin
       Printf.fprintf stderr "Failed to wait for a free slot\n%!";
       Lwt.return ()
     end else client path

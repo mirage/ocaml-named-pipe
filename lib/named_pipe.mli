@@ -30,7 +30,9 @@ module Client: sig
   (** A connection to a named pipe server *)
 
   val openpipe: string -> t
-  (** Connect to the named pipe server. This can fail if the server is busy *)
+  (** Connect to the named pipe server on the given path (e.g. \\.\pipe\foo).
+      If the server isn't running then this raises Unix_error(Unix.ENOENT...).
+      This can fail if the server is busy *)
 
   val to_fd: t -> Unix.file_descr
 

@@ -1,3 +1,4 @@
+open Lwt.Infix
 
 module Server = struct
   type t = Unix.file_descr
@@ -18,16 +19,17 @@ module Client = struct
   type t = Unix.file_descr
   let to_fd x = x
 
-  exception Pipe_busy
+  external wait: string -> int -> bool Lwt.t = "named_pipe_lwt_wait_job"
 
-  (* TODO: if this fails with ERROR_PIPE_BUSY then call wait *)
-  let openpipe path =
+  let rec openpipe path =
     try
-      Unix.openfile path [ Unix.O_RDWR ] 0
+      let fd = Unix.openfile path [ Unix.O_RDWR ] 0 in
+      Lwt.return fd
     with Unix.Unix_error(Unix.EUNKNOWNERR -231, _, _) ->
       (* ERROR_PIPE_BUSY *)
-      raise Pipe_busy
+      wait path 1000
+      >>= fun _ ->
+      openpipe path
     | e -> raise e
 
-  external wait: string -> int -> bool Lwt.t = "named_pipe_lwt_wait_job"
 end

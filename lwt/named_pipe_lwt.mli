@@ -29,22 +29,10 @@ module Client: sig
   type t
   (** A connection to a named pipe server *)
 
-  exception Pipe_busy
-  (** A pipe is busy if the server is not ready to accept more connections:
-      perhaps it is still forking a thread for the previous one. A client
-      should call the wait function to wait for a free slot. *)
-
-  val openpipe: string -> t
+  val openpipe: string -> t Lwt.t
   (** Connect to the named pipe server on the given path (e.g. \\.\pipe\foo).
       If the server isn't running then this raises Unix_error(Unix.ENOENT...).
-      If the server isn't ready to accept a connection then this raises
-      Pipe_busy, and the client should call [wait]. *)
+      If the server is busy then this function blocks. *) 
 
   val to_fd: t -> Unix.file_descr
-
-  val wait: string -> int -> bool Lwt.t
-  (** [wait path ms] wait for up to [ms] milliseconds for the server to become
-      available. Returns true if the server has a free slot: in this case
-      the client should call [openpipe] again. Returns false if the server
-      has shutdown. *)
 end

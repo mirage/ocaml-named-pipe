@@ -37,7 +37,8 @@ let buffer_size = 4096
 
 let rec client path =
   try
-    let p = Named_pipe_lwt.Client.openpipe path in
+    Named_pipe_lwt.Client.openpipe path
+    >>= fun p ->
     let fd = Named_pipe_lwt.Client.to_fd p in
     Printf.fprintf stderr "Connected\n%!";
     let ic = Lwt_io.of_unix_fd ~mode:Lwt_io.input fd in
@@ -50,14 +51,6 @@ let rec client path =
   | Unix.Unix_error(Unix.ENOENT, _, _) ->
     Printf.fprintf stderr "Server not found (ENOENT)\n";
     Lwt.return ()
-  | Named_pipe_lwt.Client.Pipe_busy ->
-    Printf.fprintf stderr "Caught Pipe_busy: waiting\n%!";
-    Named_pipe_lwt.Client.wait path 10000
-    >>= fun ok ->
-    if not ok then begin
-      Printf.fprintf stderr "Failed to wait for a free slot\n%!";
-      Lwt.return ()
-    end else client path
 
 let one_shot_server path =
   let p = Named_pipe_lwt.Server.create path in
@@ -95,6 +88,7 @@ let rec echo_server path =
       proxy buffer_size (ic, oc) (ic, oc)
       >>= fun () ->
       Named_pipe_lwt.Server.flush p;
+      >>= fun () ->
       Named_pipe_lwt.Server.disconnect p;
       Named_pipe_lwt.Server.destroy p;
       Lwt.return () in

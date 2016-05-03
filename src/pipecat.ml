@@ -57,7 +57,7 @@ let rec client path =
       Lwt.return ()
     end else client path
 
-let server path =
+let one_shot_server path =
   let p = Named_pipe.Server.create path in
   match Named_pipe.Server.connect p with
   | false ->
@@ -75,31 +75,29 @@ let server path =
     Named_pipe.Server.destroy p;
     Lwt.return ()
 
-let echo_server path =
+let rec echo_server path =
   let p = Named_pipe.Server.create path in
-  let rec loop () =
-    match Named_pipe.Server.connect p with
-    | false ->
-      Printf.fprintf stderr "Failed to connect to client\n%!";
-      Lwt.return ()
-    | true ->
-      Printf.fprintf stderr "Connected\n%!";
-      let _ =
-        let fd = Named_pipe.Server.to_fd p in
-        let ic = Lwt_io.of_unix_fd ~mode:Lwt_io.input fd in
-        let oc = Lwt_io.of_unix_fd ~mode:Lwt_io.output fd in
-        proxy buffer_size (ic, oc) (Lwt_io.stdin, Lwt_io.stdout)
-        >>= fun () ->
-        Named_pipe.Server.flush p;
-        Named_pipe.Server.disconnect p;
-        Named_pipe.Server.destroy p;
-        Lwt.return () in
-      loop () in
-  loop ()
+  match Named_pipe.Server.connect p with
+  | false ->
+    Printf.fprintf stderr "Failed to connect to client\n%!";
+    Lwt.return ()
+  | true ->
+    Printf.fprintf stderr "Connected\n%!";
+    let _ =
+      let fd = Named_pipe.Server.to_fd p in
+      let ic = Lwt_io.of_unix_fd ~mode:Lwt_io.input fd in
+      let oc = Lwt_io.of_unix_fd ~mode:Lwt_io.output fd in
+      proxy buffer_size (ic, oc) (Lwt_io.stdin, Lwt_io.stdout)
+      >>= fun () ->
+      Named_pipe.Server.flush p;
+      Named_pipe.Server.disconnect p;
+      Named_pipe.Server.destroy p;
+      Lwt.return () in
+    echo_server path
 
 let main listen echo path =
   let t = match listen, echo with
-    | true, false -> server path
+    | true, false -> one_shot_server path
     | true, true -> echo_server path
     | false, _ -> client path in
   Lwt_main.run t

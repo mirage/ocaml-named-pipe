@@ -89,7 +89,7 @@ let rec echo_server path =
       let fd = Named_pipe.Server.to_fd p in
       let ic = Lwt_io.of_unix_fd ~mode:Lwt_io.input fd in
       let oc = Lwt_io.of_unix_fd ~mode:Lwt_io.output fd in
-      proxy buffer_size (ic, oc) (Lwt_io.stdin, Lwt_io.stdout)
+      proxy buffer_size (ic, oc) (ic, oc)
       >>= fun () ->
       Named_pipe.Server.flush p;
       Named_pipe.Server.disconnect p;

@@ -44,5 +44,7 @@ module Client: sig
 
   val wait: string -> int -> bool
   (** [wait path ms] wait for up to [ms] milliseconds for the server to become
-      available. *)
+      available. Returns true if the server has a free slot: in this case
+      the client should call [openpipe] again. Returns false if the server
+      has shutdown. *)
 end

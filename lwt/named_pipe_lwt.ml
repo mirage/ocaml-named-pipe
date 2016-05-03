@@ -6,9 +6,13 @@ module Server = struct
 
   external create: string -> t = "stub_named_pipe_create"
 
-  external connect: t -> bool Lwt.t = "named_pipe_lwt_connect_job"
+  external connect_job: t -> bool Lwt_unix.job = "named_pipe_lwt_connect_job"
 
-  external flush: t -> unit Lwt.t = "named_pipe_lwt_flush_job"
+  let connect t = Lwt_unix.run_job (connect_job t)
+
+  external flush_job: t -> unit Lwt_unix.job = "named_pipe_lwt_flush_job"
+
+  let flush t = Lwt_unix.run_job (flush_job t)
 
   external disconnect: t -> unit = "stub_named_pipe_disconnect"
 
@@ -19,7 +23,9 @@ module Client = struct
   type t = Unix.file_descr
   let to_fd x = x
 
-  external wait: string -> int -> bool Lwt.t = "named_pipe_lwt_wait_job"
+  external wait_job: string -> int -> bool Lwt_unix.job = "named_pipe_lwt_wait_job"
+
+  let wait path ms = Lwt_unix.run_job (wait_job path ms)
 
   let rec openpipe path =
     try

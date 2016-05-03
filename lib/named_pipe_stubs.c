@@ -139,7 +139,7 @@ CAMLprim value stub_named_pipe_wait(value path, value ms) {
 #ifdef WIN32
   char *c_path = strdup(String_val(path));
   int c_ms = Int_val(ms);
-  BOOL c_result = FALSE:
+  BOOL c_result = FALSE;
   caml_release_runtime_system();
   c_result = WaitNamedPipe(c_path, c_ms);
   caml_acquire_runtime_system();

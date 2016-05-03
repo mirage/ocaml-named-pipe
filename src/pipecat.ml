@@ -10,16 +10,16 @@ let path =
 let client path = failwith "unimplemented"
 
 let server path =
-  let p = Named_pipe.create path in
-  match Named_pipe.connect p with
+  let p = Named_pipe.Server.create path in
+  match Named_pipe.Server.connect p with
   | false ->
     Printf.fprintf stderr "Failed to connect to client\n%!";
     ()
   | true ->
     Printf.fprintf stderr "Connected\n%!";
-    Named_pipe.flush p;
-    Named_pipe.disconnect p;
-    Named_pipe.destroy p
+    Named_pipe.Server.flush p;
+    Named_pipe.Server.disconnect p;
+    Named_pipe.Server.destroy p
 
 let main listen path = (if listen then server else client) path
 

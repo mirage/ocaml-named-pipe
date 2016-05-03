@@ -1,12 +1,14 @@
 
-type t = Unix.file_descr
+module Server = struct
+  type t = Unix.file_descr
 
-external create: string -> t = "stub_named_pipe_create"
+  external create: string -> t = "stub_named_pipe_create"
 
-external connect: t -> bool = "stub_named_pipe_connect"
+  external connect: t -> bool = "stub_named_pipe_connect"
 
-external flush: t -> unit = "stub_named_pipe_flush"
+  external flush: t -> unit = "stub_named_pipe_flush"
 
-external disconnect: t -> unit = "stub_named_pipe_disconnect"
+  external disconnect: t -> unit = "stub_named_pipe_disconnect"
 
-external destroy: t -> unit = "stub_named_pipe_destroy"
+  external destroy: t -> unit = "stub_named_pipe_destroy"
+end

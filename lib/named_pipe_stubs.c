@@ -19,11 +19,14 @@
 #include <caml/memory.h>
 #include <caml/fail.h>
 #include <caml/bigarray.h>
+#include <caml/threads.h>
 
 #ifdef WIN32
+#include <winsock2.h>
 #include <wtypes.h>
 #include <winbase.h>
-#include <winsock2.h>
+#include <stdio.h>
+#include <tchar.h>
 
 extern value win_alloc_handle(HANDLE);
 #endif
@@ -33,13 +36,13 @@ CAMLprim value stub_named_pipe_create(value path) {
   CAMLparam1(path);
   CAMLlocal1(result);
 #ifdef WIN32
-  const char *c_path = strdup(String_val(path));
+  char *c_path = strdup(String_val(path));
   HANDLE h = INVALID_HANDLE_VALUE;
   DWORD nOutBufferSize = 4096;
   DWORD nInBufferSize  = 4096;
   DWORD nDefaultTimeOut = 0;
   LPSECURITY_ATTRIBUTES lpSecurityAttributes = NULL;
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
   h = CreateNamedPipe(
     c_path,
     PIPE_ACCESS_DUPLEX,
@@ -48,12 +51,14 @@ CAMLprim value stub_named_pipe_create(value path) {
     PIPE_WAIT |
     PIPE_UNLIMITED_INSTANCES |
     PIPE_REJECT_REMOTE_CLIENTS,
+    PIPE_UNLIMITED_INSTANCES,
     nOutBufferSize,
     nInBufferSize,
     nDefaultTimeOut,
     lpSecurityAttributes
   );
-  free(c_path);
+  free((void*)c_path);
+  caml_acquire_runtime_system();
 
   if (h == INVALID_HANDLE_VALUE) {
     _tprintf(TEXT("CreateNamedPipe failed, GLE=%d.\n"), GetLastError());

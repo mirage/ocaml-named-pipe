@@ -49,7 +49,7 @@ Executable test
   CompiledObject:     best
   Path:               lib_test
   MainIs:             test.ml
-  BuildDepends:       lwt, lwt.unix, oUnit
+  BuildDepends:       named-pipe, named-pipe.lwt, lwt, lwt.unix, oUnit
 
 Test server_test
   Run$:               flag(tests)

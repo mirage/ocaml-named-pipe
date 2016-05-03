@@ -24,7 +24,7 @@ end
 (* https://msdn.microsoft.com/en-gb/library/windows/desktop/aa365592(v=vs.85).aspx *)
 
 module Client: sig
-  type t
+  type t = Unix.file_descr
   (** A connection to a named pipe server *)
 
   val openpipe: string -> t

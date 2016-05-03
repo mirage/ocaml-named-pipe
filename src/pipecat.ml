@@ -7,7 +7,16 @@ let listen =
 let path =
   Arg.(required & pos 1 (some string) (Some "\\\\.\\pipe\\pipecat") & info ~docv:"PATH" ~doc:"Path to named pipe" [])
 
-let client path = failwith "unimplemented"
+let rec client path =
+  try
+    let p = Named_pipe.Client.openpipe path in
+    Printf.fprintf stderr "Connected\n%!";
+    Unix.close p
+  with e ->
+    Printf.fprintf stderr "Caught error %s: waiting\n%!" (Printexc.to_string e);
+    if not (Named_pipe.Client.wait path 1000)
+    then Printf.fprintf stderr "Failed to wait for a free slot\n%!"
+    else client path
 
 let server path =
   let p = Named_pipe.Server.create path in

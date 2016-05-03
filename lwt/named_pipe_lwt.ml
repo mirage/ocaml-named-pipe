@@ -5,7 +5,7 @@ module Server = struct
 
   external create: string -> t = "stub_named_pipe_create"
 
-  let connect _ = Lwt.fail (Failure "not implemented")
+  external connect: t -> bool Lwt.t = "named_pipe_lwt_connect_job"
 
   let flush _ = Lwt.fail (Failure "not implemented")
 

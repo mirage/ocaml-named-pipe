@@ -31,6 +31,31 @@
 #include <winbase.h>
 #include <stdio.h>
 #include <tchar.h>
-
 #endif
 
+struct job_connect {
+  struct lwt_unix_job job;
+  HANDLE h;
+  BOOL result;
+};
+
+static void worker_connect(struct job_connect *job)
+{
+  job->result = ConnectNamedPipe(job->h, NULL)?TRUE:(GetLastError() == ERROR_PIPE_CONNECTED);
+}
+
+static value result_connect(struct job_connect *job)
+{
+  CAMLparam0 ();
+  CAMLreturn(Val_bool((job->result == TRUE)?1:0));
+}
+
+CAMLprim
+value named_pipe_lwt_connect_job(value handle)
+{
+  CAMLparam1(handle);
+  LWT_UNIX_INIT_JOB(job, connect, 0);
+  job->handle = (HANDLE)Handle_val(handle);
+  job->result = FALSE;
+  CAMLreturn(lwt_unix_alloc_job(&(job->job)));
+}

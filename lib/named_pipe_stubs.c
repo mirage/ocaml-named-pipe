@@ -20,6 +20,7 @@
 #include <caml/fail.h>
 #include <caml/bigarray.h>
 #include <caml/threads.h>
+#include <caml/unixsupport.h>
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -28,7 +29,6 @@
 #include <stdio.h>
 #include <tchar.h>
 
-extern value win_alloc_handle(HANDLE);
 #endif
 
 /* string -> t */
@@ -61,7 +61,7 @@ CAMLprim value stub_named_pipe_create(value path) {
   caml_acquire_runtime_system();
 
   if (h == INVALID_HANDLE_VALUE) {
-    _tprintf(TEXT("CreateNamedPipe failed, GLE=%d.\n"), GetLastError());
+    _tprintf(TEXT("CreateNamedPipe failed, GLE=%ld.\n"), GetLastError());
     caml_failwith("CreateNamedPipe failed");
   }
   result = win_alloc_handle(h);
@@ -72,14 +72,21 @@ CAMLprim value stub_named_pipe_create(value path) {
 }
 
 /* t -> bool */
-CAMLprim value stub_named_pipe_connect(value path) {
-  CAMLparam1(path);
+CAMLprim value stub_named_pipe_connect(value handle) {
+  CAMLparam1(handle);
+  CAMLlocal1(result);
+  result = Val_bool(0);
 #ifdef WIN32
-  caml_failwith("Not implemented");
+  HANDLE h = Handle_val(handle);
+  BOOL fConnected = FALSE;
+  caml_release_runtime_system();
+  fConnected = ConnectNamedPipe(h, NULL)?TRUE:(GetLastError() == ERROR_PIPE_CONNECTED);
+  caml_acquire_runtime_system();
+  if (fConnected) result = Val_bool(1);
 #else
   caml_failwith("Not implemented");
 #endif
-  CAMLreturn(0);
+  CAMLreturn(result);
 }
 
 /* t -> unit */

@@ -59,7 +59,8 @@ let rec client path =
 
 let one_shot_server path =
   let p = Named_pipe.Server.create path in
-  match Named_pipe.Server.connect p with
+  Lwt_preemptive.detach Named_pipe.Server.connect p
+  >>= function
   | false ->
     Printf.fprintf stderr "Failed to connect to client\n%!";
     Lwt.return ()
@@ -77,7 +78,8 @@ let one_shot_server path =
 
 let rec echo_server path =
   let p = Named_pipe.Server.create path in
-  match Named_pipe.Server.connect p with
+  Lwt_preemptive.detach Named_pipe.Server.connect p
+  >>= function
   | false ->
     Printf.fprintf stderr "Failed to connect to client\n%!";
     Lwt.return ()

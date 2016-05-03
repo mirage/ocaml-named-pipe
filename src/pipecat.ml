@@ -91,6 +91,7 @@ let rec echo_server path =
       >>= fun () ->
       Named_pipe_lwt.Server.disconnect p;
       Named_pipe_lwt.Server.destroy p;
+      Printf.fprintf stderr "Disconnected\n%!";
       Lwt.return () in
     echo_server path
 

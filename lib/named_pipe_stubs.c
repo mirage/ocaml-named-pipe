@@ -130,3 +130,22 @@ CAMLprim value stub_named_pipe_destroy(value handle) {
 #endif
   CAMLreturn(0);
 }
+
+/* string -> int -> bool */
+CAMLprim value stub_named_pipe_wait(value path, value ms) {
+  CAMLparam2(path, ms);
+  CAMLlocal1(result);
+  result = Val_bool(0);
+#ifdef WIN32
+  char *c_path = strdup(String_val(path));
+  int c_ms = Int_val(ms);
+  BOOL c_result = FALSE:
+  caml_release_runtime_system();
+  c_result = WaitNamedPipe(c_path, c_ms);
+  caml_acquire_runtime_system();
+  result = Val_bool(c_result);
+#else
+  caml_failwith("Not implemented");
+#endif
+  CAMLreturn(result);
+}

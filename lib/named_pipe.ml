@@ -12,3 +12,13 @@ module Server = struct
 
   external destroy: t -> unit = "stub_named_pipe_destroy"
 end
+
+module Client = struct
+  type t = Unix.file_descr
+
+  (* TODO: if this fails with ERROR_PIPE_BUSY then call wait *)
+  let openpipe path =
+    Unix.openfile path [ Unix.O_RDWR ] 0
+
+  external wait: string -> int -> bool = "stub_named_pipe_wait"
+end

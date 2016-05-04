@@ -41,12 +41,11 @@ let rec client path =
     >>= fun p ->
     let fd = Named_pipe_lwt.Client.to_fd p in
     Printf.fprintf stderr "Connected\n%!";
-    let ic = Lwt_io.of_unix_fd ~mode:Lwt_io.input fd in
-    let oc = Lwt_io.of_unix_fd ~mode:Lwt_io.output fd in
+    let ic = Lwt_io.of_fd ~mode:Lwt_io.input fd in
+    let oc = Lwt_io.of_fd ~mode:Lwt_io.output fd in
     proxy buffer_size (ic, oc) (Lwt_io.stdin, Lwt_io.stdout)
     >>= fun () ->
-    Unix.close fd;
-    Lwt.return ()
+    Lwt_unix.close fd
   with
   | Unix.Unix_error(Unix.ENOENT, _, _) ->
     Printf.fprintf stderr "Server not found (ENOENT)\n";
@@ -62,8 +61,8 @@ let one_shot_server path =
   | true ->
     Printf.fprintf stderr "Connected\n%!";
     let fd = Named_pipe_lwt.Server.to_fd p in
-    let ic = Lwt_io.of_unix_fd ~mode:Lwt_io.input fd in
-    let oc = Lwt_io.of_unix_fd ~mode:Lwt_io.output fd in
+    let ic = Lwt_io.of_fd ~mode:Lwt_io.input fd in
+    let oc = Lwt_io.of_fd ~mode:Lwt_io.output fd in
     proxy buffer_size (ic, oc) (Lwt_io.stdin, Lwt_io.stdout)
     >>= fun () ->
     Named_pipe_lwt.Server.flush p
@@ -83,8 +82,8 @@ let rec echo_server path =
     Printf.fprintf stderr "Connected\n%!";
     let _ =
       let fd = Named_pipe_lwt.Server.to_fd p in
-      let ic = Lwt_io.of_unix_fd ~mode:Lwt_io.input fd in
-      let oc = Lwt_io.of_unix_fd ~mode:Lwt_io.output fd in
+      let ic = Lwt_io.of_fd ~mode:Lwt_io.input fd in
+      let oc = Lwt_io.of_fd ~mode:Lwt_io.output fd in
       proxy buffer_size (ic, oc) (ic, oc)
       >>= fun () ->
       Named_pipe_lwt.Server.flush p;

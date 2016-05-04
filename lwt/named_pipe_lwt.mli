@@ -11,7 +11,7 @@ module Server: sig
   val connect: t -> bool Lwt.t
   (** Connect blocks until a client connects to this named pipe *)
 
-  val to_fd: t -> Unix.file_descr
+  val to_fd: t -> Lwt_unix.file_descr
 
   val flush: t -> unit Lwt.t
   (** Flushes outstanding write buffers, typically called before disconnect *)
@@ -34,5 +34,5 @@ module Client: sig
       If the server isn't running then this raises Unix_error(Unix.ENOENT...).
       If the server is busy then this function blocks. *) 
 
-  val to_fd: t -> Unix.file_descr
+  val to_fd: t -> Lwt_unix.file_descr
 end

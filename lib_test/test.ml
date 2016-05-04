@@ -29,8 +29,8 @@ let rec echo_server path =
     Printf.fprintf stderr ".%!";
     let _ =
       let fd = Named_pipe_lwt.Server.to_fd p in
-      let ic = Lwt_io.of_unix_fd ~mode:Lwt_io.input fd in
-      let oc = Lwt_io.of_unix_fd ~mode:Lwt_io.output fd in
+      let ic = Lwt_io.of_fd ~mode:Lwt_io.input fd in
+      let oc = Lwt_io.of_fd ~mode:Lwt_io.output fd in
       proxy 4096 (ic, oc) (ic, oc)
       >>= fun () ->
       Named_pipe_lwt.Server.flush p;
@@ -48,16 +48,15 @@ let test_server () =
     Named_pipe_lwt.Client.openpipe path
     >>= fun p ->
     let fd = Named_pipe_lwt.Client.to_fd p in
-    let ic = Lwt_io.of_unix_fd ~close:Lwt.return ~mode:Lwt_io.input fd in
-    let oc = Lwt_io.of_unix_fd ~close:Lwt.return ~mode:Lwt_io.output fd in
+    let ic = Lwt_io.of_fd ~close:Lwt.return ~mode:Lwt_io.input fd in
+    let oc = Lwt_io.of_fd ~close:Lwt.return ~mode:Lwt_io.output fd in
     Lwt_io.write_line oc "hello"
     >>= fun () ->
     Lwt_io.read_line ic
     >>= fun input ->
     if input <> "hello"
     then failwith (Printf.sprintf "expected hello, got [%s]" input);
-    Unix.close fd;
-    Lwt.return () in
+    Lwt_unix.close fd in
   let rec mkints = function
     | 0 -> []
     | n -> n :: (mkints (n-1)) in

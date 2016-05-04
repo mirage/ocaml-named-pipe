@@ -24,7 +24,7 @@ Library "named-pipe_lwt"
   Findlibname:        lwt
   Findlibparent:      named-pipe
   Modules:            Named_pipe_lwt
-  BuildDepends:       lwt
+  BuildDepends:       lwt, named-pipe
   CSources:           named_pipe_lwt_stubs.c
   CCOpt:              -I $(pkg_lwt)
 

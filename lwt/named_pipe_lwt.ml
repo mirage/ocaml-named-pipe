@@ -2,7 +2,7 @@ open Lwt.Infix
 
 module Server = struct
   type t = Unix.file_descr
-  let to_fd x = x
+  let to_fd x = Lwt_unix.of_unix_file_descr ~blocking:true x
 
   external create: string -> t = "stub_named_pipe_create"
 
@@ -22,6 +22,8 @@ end
 module Client = struct
   type t = Unix.file_descr
   let to_fd x = x
+
+  let to_fd x = Lwt_unix.of_unix_file_descr ~blocking:true x
 
   external wait_job: string -> int -> bool Lwt_unix.job = "named_pipe_lwt_wait_job"
 

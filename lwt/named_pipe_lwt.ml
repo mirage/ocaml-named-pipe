@@ -35,6 +35,7 @@ module Client = struct
   let wait path ms = Lwt_unix.run_job (wait_job path ms)
 
   let rec openpipe path =
+    if Sys.os_type <> "Win32" then raise Not_available;
     try
       let fd = Unix.openfile path [ Unix.O_RDWR ] 0 in
       Lwt.return fd

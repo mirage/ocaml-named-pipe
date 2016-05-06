@@ -28,4 +28,5 @@ depends: [
   "ocamlbuild" {build}
   "alcotest" {test & >= "0.4.0"}
 ]
-available: [os = "win32"]
+
+available: [ ocaml-version >= "3.12.1" ]

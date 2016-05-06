@@ -1,12 +1,12 @@
 OASISFormat: 0.3
 Name:        named-pipe
-Version:     0.1
+Version:     0.2
 Synopsis:    Win32 named pipes
 Authors:     David Scott
 License:     ISC
 Plugins:     META (0.3), DevFiles (0.4)
 BuildTools:  ocamlbuild
-OCamlVersion: >= 4.00
+OCamlVersion: >= 3.12.1
 
 Library "named-pipe"
   Pack:               true
@@ -41,7 +41,7 @@ Executable pipecat
   CompiledObject:     best
   Path:               src
   MainIs:             pipecat.ml
-  BuildDepends:       cmdliner, named-pipe, named-pipe.lwt, lwt, lwt.unix
+  BuildDepends:       cmdliner, named-pipe, named-pipe.lwt, lwt, lwt.unix, bytes
 
 Executable test
   Build$:             flag(tests)

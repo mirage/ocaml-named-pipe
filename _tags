@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: a822794f6f5acfdf4e14be0658d7fa55)
+# DO NOT EDIT (digest: e9605ac525523355d3e2e08a1521156d)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -32,12 +32,14 @@ true: annot, bin_annot
 "lwt/named_pipe_lwt_stubs.c": package(unix)
 "lwt/named_pipe_lwt_stubs.c": use_named-pipe
 # Executable pipecat
+<src/pipecat.{native,byte}>: package(bytes)
 <src/pipecat.{native,byte}>: package(cmdliner)
 <src/pipecat.{native,byte}>: package(lwt)
 <src/pipecat.{native,byte}>: package(lwt.unix)
 <src/pipecat.{native,byte}>: package(unix)
 <src/pipecat.{native,byte}>: use_named-pipe
 <src/pipecat.{native,byte}>: use_named-pipe_lwt
+<src/*.ml{,i,y}>: package(bytes)
 <src/*.ml{,i,y}>: package(cmdliner)
 <src/*.ml{,i,y}>: package(lwt)
 <src/*.ml{,i,y}>: package(lwt.unix)

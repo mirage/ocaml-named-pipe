@@ -21,6 +21,7 @@
 #include <caml/bigarray.h>
 #include <caml/threads.h>
 #include <caml/unixsupport.h>
+#include <caml/callback.h>
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -30,6 +31,11 @@
 #include <tchar.h>
 
 #endif
+
+static void named_pipe_not_available()
+{
+  caml_failwith("Named pipes not available");
+}
 
 /* string -> t */
 CAMLprim value stub_named_pipe_create(value path) {
@@ -65,7 +71,7 @@ CAMLprim value stub_named_pipe_create(value path) {
   }
   result = win_alloc_handle(h);
 #else
-  caml_failwith("Not implemented");
+  named_pipe_not_available();
 #endif
   CAMLreturn(result);
 }
@@ -83,7 +89,7 @@ CAMLprim value stub_named_pipe_connect(value handle) {
   caml_acquire_runtime_system();
   if (fConnected) result = Val_bool(1);
 #else
-  caml_failwith("Not implemented");
+  named_pipe_not_available();
 #endif
   CAMLreturn(result);
 }
@@ -97,7 +103,7 @@ CAMLprim value stub_named_pipe_flush(value handle) {
   FlushFileBuffers(h);
   caml_acquire_runtime_system();
 #else
-  caml_failwith("Not implemented");
+  named_pipe_not_available();
 #endif
   CAMLreturn(0);
 }
@@ -111,7 +117,7 @@ CAMLprim value stub_named_pipe_disconnect(value handle) {
   DisconnectNamedPipe(h);
   caml_acquire_runtime_system();
 #else
-  caml_failwith("Not implemented");
+  named_pipe_not_available();
 #endif
   CAMLreturn(0);
 }
@@ -125,7 +131,7 @@ CAMLprim value stub_named_pipe_destroy(value handle) {
   CloseHandle(h);
   caml_acquire_runtime_system();
 #else
-  caml_failwith("Not implemented");
+  named_pipe_not_available();
 #endif
   CAMLreturn(0);
 }
@@ -144,7 +150,7 @@ CAMLprim value stub_named_pipe_wait(value path, value ms) {
   caml_acquire_runtime_system();
   result = Val_bool(c_result);
 #else
-  caml_failwith("Not implemented");
+  named_pipe_not_available();
 #endif
   CAMLreturn(result);
 }

@@ -1,4 +1,4 @@
-open Lwt.Infix
+open Lwt
 
 let sigint_t, sigint_u = Lwt.task ()
 

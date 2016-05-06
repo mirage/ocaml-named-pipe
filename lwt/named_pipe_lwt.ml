@@ -1,4 +1,4 @@
-open Lwt.Infix
+open Lwt
 
 let () = Callback.register_exception "named-pipe:not-available" Named_pipe.Not_available
 

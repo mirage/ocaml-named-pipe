@@ -41,7 +41,7 @@ Executable pipecat
   CompiledObject:     best
   Path:               src
   MainIs:             pipecat.ml
-  BuildDepends:       cmdliner, named-pipe, named-pipe.lwt, lwt, lwt.unix
+  BuildDepends:       cmdliner, named-pipe, named-pipe.lwt, lwt, lwt.unix, bytes
 
 Executable test
   Build$:             flag(tests)

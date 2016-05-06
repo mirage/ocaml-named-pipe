@@ -63,10 +63,14 @@ let test_server () =
   let t = Lwt.join (List.map (fun _ -> client ()) (mkints 1000)) in
   Lwt_main.run t
 
-let tests = [
+let tests_win32 = [
   "server", [
     "connect 1000x to a server", `Quick, test_server;
   ]
 ]
+
+let tests_other = []
+
+let tests = if Sys.os_type = "Win32" then tests_win32 else tests_other
 
 let () = Alcotest.run "named-pipe" tests

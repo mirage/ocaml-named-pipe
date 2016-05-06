@@ -1,7 +1,7 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 3649f09fd4119963ad1a27c1fb7c1658) *)
+(* DO NOT EDIT (digest: 6e4d19ccbde9f44296737696b5f28d9c) *)
 module OASISGettext = struct
-(* # 22 "src/oasis\\OASISGettext.ml" *)
+(* # 22 "src/oasis/OASISGettext.ml" *)
 
 
   let ns_ str =
@@ -30,7 +30,7 @@ module OASISGettext = struct
 end
 
 module OASISExpr = struct
-(* # 22 "src/oasis\\OASISExpr.ml" *)
+(* # 22 "src/oasis/OASISExpr.ml" *)
 
 
 
@@ -131,7 +131,7 @@ end
 
 # 132 "myocamlbuild.ml"
 module BaseEnvLight = struct
-(* # 22 "src/base\\BaseEnvLight.ml" *)
+(* # 22 "src/base/BaseEnvLight.ml" *)
 
 
   module MapString = Map.Make(String)
@@ -236,7 +236,7 @@ end
 
 # 237 "myocamlbuild.ml"
 module MyOCamlbuildFindlib = struct
-(* # 22 "src/plugins/ocamlbuild\\MyOCamlbuildFindlib.ml" *)
+(* # 22 "src/plugins/ocamlbuild/MyOCamlbuildFindlib.ml" *)
 
 
   (** OCamlbuild extension, copied from
@@ -314,9 +314,7 @@ module MyOCamlbuildFindlib = struct
     with Not_found -> s
 
   (* ocamlfind command *)
-  let ocamlfind x = S[Sh (
-    Ocamlbuild_pack.Shell.quote_filename_if_needed
-      (exec_from_conf "ocamlfind") ); x]
+  let ocamlfind x = S[Sh (exec_from_conf "ocamlfind"); x]
 
   (* This lists all supported packages. *)
   let find_packages () =
@@ -428,7 +426,7 @@ module MyOCamlbuildFindlib = struct
 end
 
 module MyOCamlbuildBase = struct
-(* # 22 "src/plugins/ocamlbuild\\MyOCamlbuildBase.ml" *)
+(* # 22 "src/plugins/ocamlbuild/MyOCamlbuildBase.ml" *)
 
 
   (** Base functions for writing myocamlbuild.ml
@@ -449,7 +447,7 @@ module MyOCamlbuildBase = struct
   type tag = string
 
 
-(* # 62 "src/plugins/ocamlbuild\\MyOCamlbuildBase.ml" *)
+(* # 62 "src/plugins/ocamlbuild/MyOCamlbuildBase.ml" *)
 
 
   type t =
@@ -605,7 +603,7 @@ module MyOCamlbuildBase = struct
 end
 
 
-# 608 "myocamlbuild.ml"
+# 606 "myocamlbuild.ml"
 open Ocamlbuild_plugin;;
 let package_default =
   {
@@ -633,6 +631,6 @@ let conf = {MyOCamlbuildFindlib.no_automatic_syntax = false}
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default conf package_default;;
 
-# 637 "myocamlbuild.ml"
+# 635 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;

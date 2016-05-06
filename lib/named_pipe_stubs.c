@@ -32,7 +32,7 @@
 
 #endif
 
-void named_pipe_not_available()
+static void named_pipe_not_available()
 {
   static value *exn = NULL;
   if (!exn) {

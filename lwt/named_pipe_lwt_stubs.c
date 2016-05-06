@@ -22,7 +22,7 @@
 #include <caml/bigarray.h>
 #include <caml/threads.h>
 #include <caml/unixsupport.h>
-
+#include <caml/callback.h>
 
 #include "lwt_unix.h"
 
@@ -41,7 +41,17 @@
 #define FALSE 0
 #endif
 
-extern void named_pipe_not_available();
+static void named_pipe_not_available()
+{
+  static value *exn = NULL;
+  if (!exn) {
+    exn = caml_named_value("named-pipe.lwt:not-available");
+  }
+  if (!exn) {
+    caml_failwith("Failed to raise Not_available exception");
+  }
+  caml_raise_constant(*exn);
+}
 
 struct job_connect {
   struct lwt_unix_job job;
@@ -139,4 +149,3 @@ value named_pipe_lwt_wait_job(value path, value ms)
   job->result = FALSE;
   CAMLreturn(lwt_unix_alloc_job(&(job->job)));
 }
-

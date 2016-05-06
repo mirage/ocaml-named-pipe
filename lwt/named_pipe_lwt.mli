@@ -14,8 +14,15 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  *)
- 
-(** https://msdn.microsoft.com/en-us/library/windows/desktop/aa365588(v=vs.85).aspx *)
+
+(**
+For more information on Windows Named pipes please see:
+
+https://msdn.microsoft.com/en-us/library/windows/desktop/aa365588(v=vs.85).aspx
+*)
+
+exception Not_available
+(** Raised on platforms which don't support named pipes *)
 
 module Server: sig
   type t

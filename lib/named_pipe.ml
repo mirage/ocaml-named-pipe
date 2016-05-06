@@ -14,24 +14,37 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  *)
- 
-exception Not_available
 
-let () = Callback.register_exception "named-pipe:not-available" Not_available
+exception Not_available
 
 module Server = struct
   type t = Unix.file_descr
   let to_fd x = x
 
-  external create: string -> t = "stub_named_pipe_create"
+  external create': string -> t = "stub_named_pipe_create"
+  let create path =
+    if Sys.os_type <> "Win32" then raise Not_available;
+    create' path
 
-  external connect: t -> bool = "stub_named_pipe_connect"
+  external connect': t -> bool = "stub_named_pipe_connect"
+  let connect t =
+    if Sys.os_type <> "Win32" then raise Not_available;
+    connect' t
 
-  external flush: t -> unit = "stub_named_pipe_flush"
+  external flush': t -> unit = "stub_named_pipe_flush"
+  let flush t =
+    if Sys.os_type <> "Win32" then raise Not_available;
+    flush' t
 
-  external disconnect: t -> unit = "stub_named_pipe_disconnect"
+  external disconnect': t -> unit = "stub_named_pipe_disconnect"
+  let disconnect t =
+    if Sys.os_type <> "Win32" then raise Not_available;
+    disconnect' t
 
-  external destroy: t -> unit = "stub_named_pipe_destroy"
+  external destroy': t -> unit = "stub_named_pipe_destroy"
+  let destroy t =
+    if Sys.os_type <> "Win32" then raise Not_available;
+    destroy' t
 end
 
 module Client = struct
@@ -42,6 +55,7 @@ module Client = struct
 
   (* TODO: if this fails with ERROR_PIPE_BUSY then call wait *)
   let openpipe path =
+    if Sys.os_type <> "Win32" then raise Not_available;
     try
       Unix.openfile path [ Unix.O_RDWR ] 0
     with Unix.Unix_error(Unix.EUNKNOWNERR -231, _, _) ->
@@ -49,5 +63,9 @@ module Client = struct
       raise Pipe_busy
     | e -> raise e
 
-  external wait: string -> int -> bool = "stub_named_pipe_wait"
+  external wait': string -> int -> bool = "stub_named_pipe_wait"
+
+  let wait path ms =
+    if Sys.os_type <> "Win32" then raise Not_available;
+    wait' path ms
 end

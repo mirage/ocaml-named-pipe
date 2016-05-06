@@ -34,14 +34,7 @@
 
 static void named_pipe_not_available()
 {
-  static value *exn = NULL;
-  if (!exn) {
-    exn = caml_named_value("named-pipe:not-available");
-  }
-  if (!exn) {
-    caml_failwith("Failed to raise Not_available exception");
-  }
-  caml_raise_constant(*exn);
+  caml_failwith("Named pipes not available");
 }
 
 /* string -> t */

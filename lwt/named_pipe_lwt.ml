@@ -1,5 +1,7 @@
 open Lwt.Infix
 
+let () = Callback.register_exception "named-pipe:not-available" Named_pipe.Not_available
+
 module Server = struct
   type t = Unix.file_descr
   let to_fd x = Lwt_unix.of_unix_file_descr ~blocking:true x

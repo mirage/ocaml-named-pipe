@@ -15,6 +15,7 @@
  */
 
 #include <stdint.h>
+#include <string.h>
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/fail.h>
@@ -31,7 +32,16 @@
 #include <winbase.h>
 #include <stdio.h>
 #include <tchar.h>
+#else
+#define HANDLE void*
+#define BOOL int
+#define DWORD int
+#define Handle_val(x) NULL
+#define TRUE 1
+#define FALSE 0
 #endif
+
+extern void named_pipe_not_available();
 
 struct job_connect {
   struct lwt_unix_job job;
@@ -41,12 +51,17 @@ struct job_connect {
 
 static void worker_connect(struct job_connect *job)
 {
+#ifdef WIN32
   job->result = ConnectNamedPipe(job->h, NULL)?TRUE:(GetLastError() == ERROR_PIPE_CONNECTED);
+#endif
 }
 
 static value result_connect(struct job_connect *job)
 {
   CAMLparam0 ();
+#ifndef WIN32
+  named_pipe_not_available();
+#endif
   CAMLreturn(Val_bool((job->result == TRUE)?1:0));
 }
 
@@ -67,12 +82,17 @@ struct job_flush {
 
 static void worker_flush(struct job_flush *job)
 {
+#ifdef WIN32
   FlushFileBuffers(job->h);
+#endif
 }
 
 static value result_flush(struct job_flush *job)
 {
   CAMLparam0 ();
+  #ifndef WIN32
+    named_pipe_not_available();
+  #endif
   CAMLreturn(Val_int(0));
 }
 
@@ -94,13 +114,18 @@ struct job_wait {
 
 static void worker_wait(struct job_wait *job)
 {
+#ifdef WIN32
   job->result = WaitNamedPipe(job->path, job->ms);
+#endif
   free(job->path);
 }
 
 static value result_wait(struct job_wait *job)
 {
   CAMLparam0 ();
+#ifndef WIN32
+  named_pipe_not_available();
+#endif
   CAMLreturn(Val_bool((job->result == TRUE)?1:0));
 }
 

@@ -1,4 +1,8 @@
 
+exception Not_available
+
+let () = Callback.register_exception "named-pipe:not-available" Not_available
+
 module Server = struct
   type t = Unix.file_descr
   let to_fd x = x

@@ -1,6 +1,9 @@
 
 (** https://msdn.microsoft.com/en-us/library/windows/desktop/aa365588(v=vs.85).aspx *)
 
+exception Not_available
+(** Raised on platforms which don't support named pipes *)
+
 module Server: sig
   type t
   (** A single named pipe capable of accepting one connection. *)

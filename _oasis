@@ -1,6 +1,6 @@
 OASISFormat: 0.3
 Name:        named-pipe
-Version:     0.2
+Version:     0.3
 Synopsis:    Win32 named pipes
 Authors:     David Scott
 License:     ISC

@@ -1,3 +1,6 @@
+0.3 (2016-07-19)
+- Add dependency on lwt.unix
+
 0.2 (2016-05-06)
 - Enable build on OCaml 3.12.1
 - Code can now be built and linked on all platforms, but will raise a dynamic

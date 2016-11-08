@@ -35,7 +35,7 @@ let echo =
 
 let buffer_size = 4096
 
-let rec client path =
+let client path =
   try
     Named_pipe_lwt.Client.openpipe path
     >>= fun p ->
@@ -51,48 +51,48 @@ let rec client path =
     Printf.fprintf stderr "Server not found (ENOENT)\n";
     Lwt.return ()
 
+let with_connect p f =
+  Lwt.catch (fun () ->
+      Named_pipe_lwt.Server.connect p >>= f
+    ) (fun e ->
+      Printf.fprintf stderr "Failed to connect to client\n (%s)%!"
+        (Printexc.to_string e);
+      Lwt.return_unit)
+
 let one_shot_server path =
   let p = Named_pipe_lwt.Server.create path in
-  Named_pipe_lwt.Server.connect p
-  >>= function
-  | false ->
-    Printf.fprintf stderr "Failed to connect to client\n%!";
-    Lwt.return ()
-  | true ->
-    Printf.fprintf stderr "Connected\n%!";
-    let fd = Named_pipe_lwt.Server.to_fd p in
-    let ic = Lwt_io.of_fd ~mode:Lwt_io.input fd in
-    let oc = Lwt_io.of_fd ~mode:Lwt_io.output fd in
-    proxy buffer_size (ic, oc) (Lwt_io.stdin, Lwt_io.stdout)
-    >>= fun () ->
-    Named_pipe_lwt.Server.flush p
-    >>= fun () ->
-    Named_pipe_lwt.Server.disconnect p;
-    Named_pipe_lwt.Server.destroy p;
-    Lwt.return ()
-
-let rec echo_server path =
-  let p = Named_pipe_lwt.Server.create path in
-  Named_pipe_lwt.Server.connect p
-  >>= function
-  | false ->
-    Printf.fprintf stderr "Failed to connect to client\n%!";
-    Lwt.return ()
-  | true ->
-    Printf.fprintf stderr "Connected\n%!";
-    let _ =
+  with_connect p (fun () ->
+      Printf.fprintf stderr "Connected\n%!";
       let fd = Named_pipe_lwt.Server.to_fd p in
       let ic = Lwt_io.of_fd ~mode:Lwt_io.input fd in
       let oc = Lwt_io.of_fd ~mode:Lwt_io.output fd in
-      proxy buffer_size (ic, oc) (ic, oc)
+      proxy buffer_size (ic, oc) (Lwt_io.stdin, Lwt_io.stdout)
       >>= fun () ->
-      Named_pipe_lwt.Server.flush p;
+      Named_pipe_lwt.Server.flush p
       >>= fun () ->
       Named_pipe_lwt.Server.disconnect p;
       Named_pipe_lwt.Server.destroy p;
-      Printf.fprintf stderr "Disconnected\n%!";
-      Lwt.return () in
-    echo_server path
+      Lwt.return ()
+    )
+
+let rec echo_server path =
+  let p = Named_pipe_lwt.Server.create path in
+  with_connect p (fun () ->
+      Printf.fprintf stderr "Connected\n%!";
+      let _ =
+        let fd = Named_pipe_lwt.Server.to_fd p in
+        let ic = Lwt_io.of_fd ~mode:Lwt_io.input fd in
+        let oc = Lwt_io.of_fd ~mode:Lwt_io.output fd in
+        proxy buffer_size (ic, oc) (ic, oc)
+        >>= fun () ->
+        Named_pipe_lwt.Server.flush p;
+        >>= fun () ->
+        Named_pipe_lwt.Server.disconnect p;
+        Named_pipe_lwt.Server.destroy p;
+        Printf.fprintf stderr "Disconnected\n%!";
+        Lwt.return () in
+      echo_server path
+    )
 
 let main listen echo path =
   let t = match listen, echo with

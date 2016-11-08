@@ -32,7 +32,7 @@ module Server = struct
     if Sys.os_type <> "Win32" then raise Not_available;
     create' path
 
-  external connect_job: t -> bool Lwt_unix.job = "named_pipe_lwt_connect_job"
+  external connect_job: t -> unit Lwt_unix.job = "named_pipe_lwt_connect_job"
 
   let connect t =
     if Sys.os_type <> "Win32" then raise Not_available;
@@ -63,7 +63,7 @@ module Client = struct
 
   let to_fd x = Lwt_unix.of_unix_file_descr ~blocking:true x
 
-  external wait_job: string -> int -> bool Lwt_unix.job = "named_pipe_lwt_wait_job"
+  external wait_job: string -> int -> unit Lwt_unix.job = "named_pipe_lwt_wait_job"
 
   let wait path ms =
     if Sys.os_type <> "Win32" then raise Not_available;
@@ -76,8 +76,7 @@ module Client = struct
       Lwt.return fd
     with Unix.Unix_error(Unix.EUNKNOWNERR -231, _, _) ->
       (* ERROR_PIPE_BUSY *)
-      wait path 1000
-      >>= fun _ ->
+      wait path 1000 >>= fun () ->
       openpipe path
     | e -> raise e
 

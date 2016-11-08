@@ -26,7 +26,7 @@ module Server = struct
     if Sys.os_type <> "Win32" then raise Not_available;
     create' path
 
-  external connect': t -> bool = "stub_named_pipe_connect"
+  external connect': t -> unit = "stub_named_pipe_connect"
   let connect t =
     if Sys.os_type <> "Win32" then raise Not_available;
     connect' t
@@ -63,7 +63,7 @@ module Client = struct
       raise Pipe_busy
     | e -> raise e
 
-  external wait': string -> int -> bool = "stub_named_pipe_wait"
+  external wait': string -> int -> unit = "stub_named_pipe_wait"
 
   let wait path ms =
     if Sys.os_type <> "Win32" then raise Not_available;

@@ -18,14 +18,18 @@ let proxy buffer_size (ic, oc) (stdin, stdout) =
     (function End_of_file -> Lwt.return ()
      | e -> Lwt.fail e)
 
+let with_connect p f =
+  Lwt.catch (fun () ->
+      Named_pipe_lwt.Server.connect p >>= f
+    ) (fun e ->
+      Printf.fprintf stderr "Failed to connect to client: %s\n%!"
+      (Printexc.to_string e);
+      Lwt.return ()
+    )
+
 let rec echo_server path =
   let p = Named_pipe_lwt.Server.create path in
-  Named_pipe_lwt.Server.connect p
-  >>= function
-  | false ->
-    Printf.fprintf stderr "Failed to connect to client\n%!";
-    Lwt.return ()
-  | true ->
+  with_connect p (fun () ->
     Printf.fprintf stderr ".%!";
     let _ =
       let fd = Named_pipe_lwt.Server.to_fd p in
@@ -39,6 +43,7 @@ let rec echo_server path =
       Named_pipe_lwt.Server.destroy p;
       Lwt.return () in
     echo_server path
+    )
 
 let test_server () =
   let path = "\\\\.\\pipe\\testpipes" in

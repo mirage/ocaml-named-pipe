@@ -84,10 +84,18 @@ CAMLprim value stub_named_pipe_connect(value handle) {
 #ifdef WIN32
   HANDLE h = Handle_val(handle);
   BOOL fConnected = FALSE;
+  DWORD error = 0;
   caml_release_runtime_system();
-  fConnected = ConnectNamedPipe(h, NULL)?TRUE:(GetLastError() == ERROR_PIPE_CONNECTED);
+  fConnected = ConnectNamedPipe(h, NULL);
   caml_acquire_runtime_system();
-  if (fConnected) result = Val_bool(1);
+  if (!fConnected) {
+    error = GetLastError();
+    if (error != ERROR_PIPE_CONNECTED) {
+      win32_maperr (error);
+      uerror("connect", Nothing);
+    }
+  }
+  result = Val_unit;
 #else
   named_pipe_not_available();
 #endif
@@ -148,7 +156,11 @@ CAMLprim value stub_named_pipe_wait(value path, value ms) {
   caml_release_runtime_system();
   c_result = WaitNamedPipe(c_path, c_ms);
   caml_acquire_runtime_system();
-  result = Val_bool(c_result);
+  if (!c_result) {
+    win32_maperr (GetLastError());
+    uerror("wait", Nothing);
+  }
+  result = Val_unit;
 #else
   named_pipe_not_available();
 #endif

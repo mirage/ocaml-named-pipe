@@ -49,23 +49,38 @@ static void named_pipe_not_available()
 struct job_connect {
   struct lwt_unix_job job;
   HANDLE h;
-  BOOL result;
+  DWORD error_code;
 };
 
 static void worker_connect(struct job_connect *job)
 {
 #ifdef WIN32
-  job->result = ConnectNamedPipe(job->h, NULL)?TRUE:(GetLastError() == ERROR_PIPE_CONNECTED);
+  DWORD error;
+  if (!ConnectNamedPipe(job->h, NULL)) {
+    error = GetLastError();
+    if (error != ERROR_PIPE_CONNECTED) {
+      job->error_code = error;
+    }
+  }
 #endif
 }
 
 static value result_connect(struct job_connect *job)
 {
   CAMLparam0 ();
+#ifdef WIN32
+  DWORD error = job->error_code;
+  if (error) {
+    lwt_unix_free_job(&job->job);
+    win32_maperr(error);
+    uerror("connect", Nothing);
+  }
+#endif
+  lwt_unix_free_job(&job->job);
 #ifndef WIN32
   named_pipe_not_available();
 #endif
-  CAMLreturn(Val_bool((job->result == TRUE)?1:0));
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim
@@ -74,29 +89,41 @@ value named_pipe_lwt_connect_job(value handle)
   CAMLparam1(handle);
   LWT_UNIX_INIT_JOB(job, connect, 0);
   job->h = (HANDLE)Handle_val(handle);
-  job->result = FALSE;
+  job->error_code = 0;
   CAMLreturn(lwt_unix_alloc_job(&(job->job)));
 }
 
 struct job_flush {
   struct lwt_unix_job job;
   HANDLE h;
+  DWORD error_code;
 };
 
 static void worker_flush(struct job_flush *job)
 {
 #ifdef WIN32
-  FlushFileBuffers(job->h);
+  if (!FlushFileBuffers(job->h)) {
+    job->error_code = GetLastError();
+  }
 #endif
 }
 
 static value result_flush(struct job_flush *job)
 {
   CAMLparam0 ();
-  #ifndef WIN32
-    named_pipe_not_available();
-  #endif
-  CAMLreturn(Val_int(0));
+#ifdef WIN32
+  DWORD error = job->error_code;
+  if (error) {
+    lwt_unix_free_job(&job->job);
+    win32_maperr(error);
+    uerror("flush", Nothing);
+  }
+#endif
+  lwt_unix_free_job(&job->job);
+#ifndef WIN32
+  named_pipe_not_available();
+#endif
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim
@@ -105,6 +132,7 @@ value named_pipe_lwt_flush_job(value handle)
   CAMLparam1(handle);
   LWT_UNIX_INIT_JOB(job, flush, 0);
   job->h = (HANDLE)Handle_val(handle);
+  job->error_code = 0;
   CAMLreturn(lwt_unix_alloc_job(&(job->job)));
 }
 
@@ -112,24 +140,35 @@ struct job_wait {
   struct lwt_unix_job job;
   char *path;
   DWORD ms;
-  BOOL result;
+  DWORD error_code;
 };
 
 static void worker_wait(struct job_wait *job)
 {
 #ifdef WIN32
-  job->result = WaitNamedPipe(job->path, job->ms);
+  if (!WaitNamedPipe(job->path, job->ms)) {
+    job->error_code = GetLastError();
+  }
 #endif
-  free(job->path);
 }
 
 static value result_wait(struct job_wait *job)
 {
   CAMLparam0 ();
+#ifdef WIN32
+  DWORD error = job->error_code;
+  if (error) {
+    free(job->path);
+    lwt_unix_free_job(&job->job);
+    win32_maperr(error);
+    uerror("wait", Nothing);
+  };
+#endif
+  lwt_unix_free_job(&job->job);
 #ifndef WIN32
   named_pipe_not_available();
 #endif
-  CAMLreturn(Val_bool((job->result == TRUE)?1:0));
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim
@@ -137,8 +176,8 @@ value named_pipe_lwt_wait_job(value path, value ms)
 {
   CAMLparam2(path, ms);
   LWT_UNIX_INIT_JOB(job, wait, 0);
-  job->path = strdup(String_val(path));
+  job->path = caml_strdup(String_val(path));
   job->ms = Int_val(ms);
-  job->result = FALSE;
+  job->error_code = 0;
   CAMLreturn(lwt_unix_alloc_job(&(job->job)));
 }

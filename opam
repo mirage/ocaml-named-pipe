@@ -1,31 +1,26 @@
 opam-version: "1.2"
-name: "named-pipe"
-maintainer: "dave@recoil.org"
-version: "dev"
-authors: [ "David Scott" ]
-license: "ISC"
-homepage: "https://github.com/djs55/ocaml-namedpipe"
-dev-repo: "https://github.com/djs55/ocaml-namedpipe.git"
-bug-reports: "https://github.com/djs55/ocaml-namedpipe/issues"
+maintainer:   "dave@recoil.org"
+authors:      [ "David Scott" "Thomas Gazagnaire"]
+license:      "ISC"
+homepage:     "https://github.com/mirage/ocaml-name-dpipe"
+dev-repo:     "https://github.com/mirage/ocaml-named-pipe.git"
+bug-reports:  "https://github.com/mirage/ocaml-named-pipe/issues"
 
-build: [
-  ["ocaml" "setup.ml" "-configure" "--%{alcotest:enable}%-tests" ]
-  [make]
-]
-
+build: ["ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%"]
 build-test:[
-  [make "test"]
+  ["ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%" "--tests" "true"]
+  ["ocaml" "pkg/pkg.ml" "test"]
 ]
-install: [make "install"]
-remove: ["ocamlfind" "remove" "named-pipe"]
 
 depends: [
+  "ocamlfind"   {build}
+  "ocamlbuild"  {build}
+  "topkg"       {build & >= "0.8.1"}
+  "ocb-stubblr" {build & >= "0.1.0"}
   "base-bytes"
   "lwt" {>= "2.4.7"}
   "base-unix"
   "cmdliner"
-  "ocamlfind" {build}
-  "ocamlbuild" {build}
   "alcotest" {test & >= "0.4.0"}
 ]
 

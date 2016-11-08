@@ -1,0 +1,4 @@
+PKG lwt.unix cmdliner
+B _build/**
+S src/
+S lwt/

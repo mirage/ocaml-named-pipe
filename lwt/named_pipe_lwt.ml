@@ -59,7 +59,6 @@ end
 
 module Client = struct
   type t = Unix.file_descr
-  let to_fd x = x
 
   let to_fd x = Lwt_unix.of_unix_file_descr ~blocking:true x
 

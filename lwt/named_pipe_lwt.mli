@@ -31,7 +31,7 @@ module Server: sig
   val create: string -> t
   (** The server should create a named pipe at a particular path under \\.\pipe *)
 
-  val connect: t -> bool Lwt.t
+  val connect: t -> unit Lwt.t
   (** Connect blocks until a client connects to this named pipe *)
 
   val to_fd: t -> Lwt_unix.file_descr
@@ -55,7 +55,7 @@ module Client: sig
   val openpipe: string -> t Lwt.t
   (** Connect to the named pipe server on the given path (e.g. \\.\pipe\foo).
       If the server isn't running then this raises Unix_error(Unix.ENOENT...).
-      If the server is busy then this function blocks. *) 
+      If the server is busy then this function blocks. *)
 
   val to_fd: t -> Lwt_unix.file_descr
 end

@@ -27,7 +27,7 @@ module Server: sig
   val create: string -> t
   (** The server should create a named pipe at a particular path under \\.\pipe *)
 
-  val connect: t -> bool
+  val connect: t -> unit
   (** Connect blocks until a client connects to this named pipe *)
 
   val to_fd: t -> Unix.file_descr
@@ -61,9 +61,8 @@ module Client: sig
 
   val to_fd: t -> Unix.file_descr
 
-  val wait: string -> int -> bool
+  val wait: string -> int -> unit
   (** [wait path ms] wait for up to [ms] milliseconds for the server to become
-      available. Returns true if the server has a free slot: in this case
-      the client should call [openpipe] again. Returns false if the server
-      has shutdown. *)
+      available. Returns when the server has a free slot: in this case
+      the client should call [openpipe] again. *)
 end

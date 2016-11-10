@@ -1,3 +1,9 @@
+0.4.0 (2016-10-11)
+
+- Clean up the C bindings, improve the accept API, fix memory leaks and raise
+  proper Unix.Error exceptions on errors (14, @samoht)
+- Use topkg (#15, @samoht)
+
 0.3 (2016-07-19)
 - Add dependency on lwt.unix
 

@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Named_pipe.Server.html">
+<link rel="Up" href="Named_pipe.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Named_pipe" rel="Chapter" href="Named_pipe.html"><title>Named_pipe.Client</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Named_pipe.Server.html" title="Named_pipe.Server">Previous</a>
+&nbsp;<a class="up" href="Named_pipe.html" title="Named_pipe">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_Named_pipe.Client.html">Named_pipe.Client</a></h1>
+
+<pre><span class="keyword">module</span> Client: <code class="code"><span class="keyword">sig</span></code> <a href="Named_pipe.Client.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+<div class="info ">
+A connection to a named pipe server<br>
+</div>
+
+
+<pre><span id="EXCEPTIONPipe_busy"><span class="keyword">exception</span> Pipe_busy</span></pre>
+<div class="info ">
+A pipe is busy if the server is not ready to accept more connections:
+      perhaps it is still forking a thread for the previous one. A client
+      should call the wait function to wait for a free slot.<br>
+</div>
+
+<pre><span id="VALopenpipe"><span class="keyword">val</span> openpipe</span> : <code class="type">string -> <a href="Named_pipe.Client.html#TYPEt">t</a></code></pre><div class="info ">
+Connect to the named pipe server on the given path (e.g. \\.\pipe\foo).
+      If the server isn't running then this raises Unix_error(Unix.ENOENT...).
+      If the server isn't ready to accept a connection then this raises
+      Pipe_busy, and the client should call <code class="code">wait</code>.<br>
+</div>
+
+<pre><span id="VALto_fd"><span class="keyword">val</span> to_fd</span> : <code class="type"><a href="Named_pipe.Client.html#TYPEt">t</a> -> Unix.file_descr</code></pre>
+<pre><span id="VALwait"><span class="keyword">val</span> wait</span> : <code class="type">string -> int -> unit</code></pre><div class="info ">
+<code class="code">wait path ms</code> wait for up to <code class="code">ms</code> milliseconds for the server to become
+      available. Returns when the server has a free slot: in this case
+      the client should call <code class="code">openpipe</code> again.<br>
+</div>
+</body></html>

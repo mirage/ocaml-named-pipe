@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="next" href="Named_pipe.Client.html">
+<link rel="Up" href="Named_pipe.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Named_pipe" rel="Chapter" href="Named_pipe.html"><title>Named_pipe.Server</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="Named_pipe.html" title="Named_pipe">Up</a>
+&nbsp;<a class="post" href="Named_pipe.Client.html" title="Named_pipe.Client">Next</a>
+</div>
+<h1>Module <a href="type_Named_pipe.Server.html">Named_pipe.Server</a></h1>
+
+<pre><span class="keyword">module</span> Server: <code class="code"><span class="keyword">sig</span></code> <a href="Named_pipe.Server.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+<div class="info ">
+A single named pipe capable of accepting one connection.<br>
+</div>
+
+
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">string -> <a href="Named_pipe.Server.html#TYPEt">t</a></code></pre><div class="info ">
+The server should create a named pipe at a particular path under \\.\pipe<br>
+</div>
+
+<pre><span id="VALconnect"><span class="keyword">val</span> connect</span> : <code class="type"><a href="Named_pipe.Server.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+Connect blocks until a client connects to this named pipe<br>
+</div>
+
+<pre><span id="VALto_fd"><span class="keyword">val</span> to_fd</span> : <code class="type"><a href="Named_pipe.Server.html#TYPEt">t</a> -> Unix.file_descr</code></pre>
+<pre><span id="VALflush"><span class="keyword">val</span> flush</span> : <code class="type"><a href="Named_pipe.Server.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+Flushes outstanding write buffers, typically called before disconnect<br>
+</div>
+
+<pre><span id="VALdisconnect"><span class="keyword">val</span> disconnect</span> : <code class="type"><a href="Named_pipe.Server.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+Disconnects the connected client<br>
+</div>
+
+<pre><span id="VALdestroy"><span class="keyword">val</span> destroy</span> : <code class="type"><a href="Named_pipe.Server.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+Removes the underlying OS resource<br>
+</div>
+</body></html>
